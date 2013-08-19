@@ -32,10 +32,18 @@ namespace :crawl do
 
         puts "Page: #{page.url}"
 
-        request = open(page.url.strip.gsub("%20", ""))
+        begin
+          request = open(page.url.strip.gsub("%20", ""))
+        rescue OpenURI::HTTPError => the_error
+          puts "Whoops got a bad status code #{the_error.message}"
+          next
+        end
 
         # skip images!
-        next if request.content_type.chomp.include? 'image'
+        if request.content_type.chomp.include? 'image'
+          page.destroy
+          next
+        end
 
         doc = Nokogiri::HTML(request)
 
@@ -88,19 +96,25 @@ namespace :crawl do
         # save the words!
         number_of_words_added = 0 ;
         doc.css("h1, h2, h3, h4, h5, h6, a, p, span, li").each do |el|
+
+          # split strings and loop over individual words
           el.content.split(' ').each do |word|
 
+            # filtering out the bad stuff
             processed_word = word.downcase.strip.gsub(/[^a-z\s]/, '')
 
+            # be sure we're not adding empty strings after all that filtering
             unless processed_word.empty?
 
               # puts "#{processed_word}\n"
 
+              # let the word be created
               Word.create!(
                 :word => processed_word,
                 :original => word
               ).save()
 
+              # just for keeping track :)
               number_of_words_added += 1
 
             end
@@ -111,6 +125,7 @@ namespace :crawl do
 
         puts "Added new words: #{number_of_words_added}"
 
+        # make sure we're not going over this one again later
         page.needs_crawling = false
         page.save()
 
