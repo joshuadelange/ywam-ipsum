@@ -37,3 +37,6 @@ gem 'jquery-rails'
 
 # To use debugger
 # gem 'ruby-debug'
+
+# getting website stuff
+gem 'nokogiri', '~> 1.5.10'

@@ -5,3 +5,9 @@
   <p>Because YWAM deserves its own dummy text...</p>
 
 </div>
+
+<% @websites.each do |website| %>
+
+  <p><%=website.url%></p>
+
+<% end %>
