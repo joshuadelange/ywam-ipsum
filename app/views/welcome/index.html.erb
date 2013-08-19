@@ -1,13 +1,39 @@
-<div class="hero-unit span8 offset2">
+<div class="row-fluid">
 
-  <h1>Loren ipsum sit dolor amet</h1>
+  <div class="hero-unit span12">
 
-  <p>Because YWAM deserves its own dummy text...</p>
+    <h1>Loren ipsum sit dolor amet</h1>
+
+    <p>Because YWAM deserves its own dummy text...</p>
+
+  </div>
 
 </div>
 
-<% @websites.each do |website| %>
+<div class="row-fluid">
 
-  <p><%=website.url%></p>
+  <div class="span6">
 
-<% end %>
+    <h2>Top words</h2>
+
+    <ul>
+      <% @top_words.each do |top_word| %>
+        <li><%=top_word.word%></li>
+      <% end %>
+    </ul>
+
+  </div>
+
+  <div class="span6">
+
+    <h2>Websites crawled</h2>
+
+    <ul>
+      <% @websites.each do |website| %>
+        <li><%=website.url%></li>
+      <% end %>
+    </ul>
+
+</div>
+
+</div>
