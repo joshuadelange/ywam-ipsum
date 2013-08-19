@@ -32,24 +32,31 @@ namespace :crawl do
 
         puts "Page: #{page.url}"
 
-        doc = Nokogiri::HTML(open(page.url.strip.gsub("%20", "")))
+        request = open(page.url.strip.gsub("%20", ""))
+
+        # skip images!
+        next if request.content_type.chomp.include? 'image'
+
+        doc = Nokogiri::HTML(request)
 
         # find sub pages on this website!
         doc.css("a").each do |link|
 
+          next if link['href'] == nil
+
+          page_url = link['href'].strip
+
           # lets check if url is relative (and this subpage)
-          is_relative = link['href'].each_char.first == '/'
+          is_relative = page_url.each_char.first == '/'
           is_subpage = is_relative
 
           # if not relative, then check if url contains the website url
           unless is_relative
-            is_subpage = link['href'].include? website.url
+            is_subpage = /^\/|^https?:\/\/#{website.url}/.match(page_url) != nil
           end
 
           # if subpage, continue!
           if is_subpage
-
-            page_url = link['href']
 
             # if relative, put the website domain in front of it
             if is_relative
@@ -63,12 +70,15 @@ namespace :crawl do
 
             # unless the page already exists...
             unless Page.find_by_url(page_url)
+
               puts "Added new subpage: #{page_url}"
+
               Page.create!(
                 :url => page_url,
                 :needs_crawling => true,
                 :website_id => website.id
               ).save()
+
             end
 
           end
@@ -84,7 +94,8 @@ namespace :crawl do
 
             unless processed_word.empty?
 
-              # puts processed_word << "\n"
+              # puts "#{processed_word}\n"
+
               Word.create!(
                 :word => processed_word,
                 :original => word
