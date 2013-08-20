@@ -133,16 +133,14 @@ namespace :crawl do
           # split strings and loop over individual words
           el.content.split(' ').each do |word|
 
+            # meh, too big.
+            next if word.bytesize > 255
+
             # filtering out the bad stuff
             processed_word = word.downcase.strip.gsub(/[^a-z\s]/, '')
 
-            # meh, too big.
-            next if processed_word.bytesize > 255
-
             # be sure we're not adding empty strings after all that filtering
             unless processed_word.empty?
-
-              # puts "#{processed_word}\n"
 
               # let the word be created
               Word.create!(
