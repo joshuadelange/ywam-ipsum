@@ -1,4 +1,5 @@
 require 'nokogiri'
+require 'uri'
 require 'open-uri'
 
 namespace :crawl do
@@ -7,20 +8,20 @@ namespace :crawl do
   task :all => :environment do
 
     # for every website
-    Website.all().each do |website|
+    Website.where(:approved => true).find_each(:batch_size => 1) do |website|
 
       puts "Website: #{website.url}"
 
       # add the website front page if wasnt added yet
-      unless Page.find_by_url(website.url)
+      website_url = website.url
+      unless website_url.include? "http://"
+        website_url = "http://#{website_url}"
+      end
 
-        url = website.url
-        unless url.include? "http://"
-          url = "http://#{url}"
-        end
+      unless Page.find_by_url(website_url)
 
         Page.create!(
-          :url => url.strip.gsub(" ", "%20"),
+          :url => website_url.strip.gsub(" ", "%20"),
           :needs_crawling => true,
           :website_id => website.id
         ).save()
@@ -33,8 +34,8 @@ namespace :crawl do
         puts "Page: #{page.url}"
 
         begin
-          request = open(page.url.strip.gsub("%20", ""))
-        rescue OpenURI::HTTPError => the_error
+          request = open(page.url.strip.gsub("\s", ""))
+        rescue => the_error
           puts "Whoops got a bad status code #{the_error.message}"
           next
         end
@@ -51,6 +52,25 @@ namespace :crawl do
         doc.css("a").each do |link|
 
           next if link['href'] == nil
+
+          # i dont want any search results (especially ywam.org ones)
+          next if link['href'].include? '/result?'
+
+          # skip ywam.org dynamic contact pages
+          next if link['href'].include? '/result-contact-us?email'
+
+          # skip ywam.org comment links
+          next if link['href'].include? '#respond'
+          next if link['href'].include? '#comments'
+          
+          # skip uofnkona's #filtering
+          next if link['href'].include? '#filter'
+
+          # skip stuff that look like images or uploads
+          next if link['href'].include? '/uploads/'
+          next if link['href'].include? '.jpg'
+          next if link['href'].include? '.jpeg'
+          next if link['href'].include? '.png'
 
           page_url = link['href'].strip
 
@@ -75,6 +95,12 @@ namespace :crawl do
             unless page_url.include? 'http'
               page_url = "http://#{page_url}"
             end
+
+            # removing any addtional slashes
+            parsed_page_url = URI.parse(page_url)
+            parsed_page_url.path.gsub! %r{/+}, '/'
+
+            page_url = parsed_page_url.to_s
 
             # unless the page already exists...
             unless Page.find_by_url(page_url)
