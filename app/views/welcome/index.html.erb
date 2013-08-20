@@ -20,27 +20,6 @@
 
   </div>
 
-  <div class="span4">
-
-    <h2>Websites crawled</h2>
-
-    <ul>
-      <% @websites.each do |website| %>
-        <li><a href="http://<%= website.url %>"><%= website.url %></a></li>
-      <% end %>
-    </ul>
-
-    <form class="form-inline" method="POST" action="/websites">
-
-      <label for="url">Add your YWAM website:</label>
-      <input type="text" id="url" name="url" placeholder="http://">
-
-      <button type="submit" class="btn">Add</button>
-
-    </form>
-
-  </div>
-
 </div>
 
 <div class="row-fluid">
@@ -49,7 +28,7 @@
 
     <h2>Cloud</h2>
 
-    <p class="muted">(Excluding boring common words 'a', 'an', 'the', 'and', 'for', 'of', 'to', 'in', 'is', 'with')</p>
+    <p class="muted">(Excluding obvious common words 'ywam', 'a', 'an', 'the', 'and', 'for', 'of', 'to', 'in', 'is', 'with')</p>
 
     <ul>
       <% @top_words.each do |top_word| %>
@@ -78,5 +57,28 @@
     </ul>
 
   </div>
+
+  <div class="span4">
+
+    <h2>Websites crawled</h2>
+
+    <ul>
+      <% @websites.each do |website| %>
+        <li><a href="http://<%= website.url %>"><%= website.url %></a></li>
+      <% end %>
+    </ul>
+
+    <form class="form-inline" method="POST" action="/websites">
+
+      <label for="url">Add your YWAM website:</label>
+      <input type="text" id="url" name="url" placeholder="http://">
+
+      <button type="submit" class="btn">Add</button>
+
+    </form>
+
+  </div>
+
+
 
 </div>

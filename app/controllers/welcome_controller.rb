@@ -9,7 +9,7 @@ class WelcomeController < ApplicationController
       :group => "word",
       :order => "count desc",
       :limit => 100,
-      :conditions => "word not IN ('a', 'an', 'the', 'and', 'for', 'of', 'to', 'in', 'is', 'with')"
+      :conditions => "word not IN ('ywam', 'a', 'an', 'the', 'and', 'for', 'of', 'to', 'in', 'is', 'with')"
     )
 
     @number_of_words = Word.count.to_s.gsub(/(\d)(?=(\d\d\d)+(?!\d))/, "\\1 ")
