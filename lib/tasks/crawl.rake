@@ -87,7 +87,7 @@ namespace :crawl do
 
           # if not relative, then check if url contains the website url
           unless is_relative
-            is_subpage = /^\/|^https?:\/\/#{website.url}/.match(page_url) != nil
+            is_subpage = /^\/|^(https?:\/\/)?#{website.url}/.match(page_url) != nil
           end
 
           # if subpage, continue!
